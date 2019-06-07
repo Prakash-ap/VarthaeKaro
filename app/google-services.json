@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "932473379596",
+    "firebase_url": "https://varthaekaro.firebaseio.com",
+    "project_id": "varthaekaro",
+    "storage_bucket": "varthaekaro.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:932473379596:android:53bf4051850ca144",
+        "android_client_info": {
+          "package_name": "techy.ap.varthaekaro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "932473379596-2j0jlrn3pvd4ieuofv8bbfnekhcnpp4a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "techy.ap.varthaekaro",
+            "certificate_hash": "7c43e5e192a0a2d42c9889aa3cc59bb426651583"
+          }
+        },
+        {
+          "client_id": "932473379596-h1snjsa8gkaca9gesog0124pucg5bpl2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAR6f2RaO6yNWuR7hOtrsg3RngkNYcpyI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "932473379596-h1snjsa8gkaca9gesog0124pucg5bpl2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
