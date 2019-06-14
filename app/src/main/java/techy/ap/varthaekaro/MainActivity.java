@@ -28,6 +28,7 @@ import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import techy.ap.varthaekaro.Fragments.ChatFragment;
+import techy.ap.varthaekaro.Fragments.ProfileFragment;
 import techy.ap.varthaekaro.Fragments.UserFragment;
 import techy.ap.varthaekaro.Model.User;
 
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         viewPagerAdapter.addFragment(new ChatFragment(),"Chats");
         viewPagerAdapter.addFragment(new UserFragment(),"Users");
+        viewPagerAdapter.addFragment(new ProfileFragment(),"Profile");
 
         viewPager.setAdapter(viewPagerAdapter);
         tabLayout.setupWithViewPager(viewPager);

@@ -109,6 +109,7 @@ public class MessageActivity extends AppCompatActivity {
                 }else{
                     Glide.with(MessageActivity.this).load(user.getImageUrl()).into(profile_image);
                 }
+                readMessage(firebaseUser.getUid(),userid,user.getImageUrl());
             }
 
             @Override
@@ -131,7 +132,7 @@ public class MessageActivity extends AppCompatActivity {
         reference.child("Chats").push().setValue(hashMap);
     }
 
-    private void readMessage(final String myid, final String userid, String  imageurl){
+    private void readMessage(final String myid, final String userid, final String  imageurl){
         chats=new ArrayList<>();
 
         reference=FirebaseDatabase.getInstance().getReference("Chats");
@@ -141,9 +142,13 @@ public class MessageActivity extends AppCompatActivity {
                 chats.clear();
                 for(DataSnapshot snapshot:dataSnapshot.getChildren()){
                     Chat chat=snapshot.getValue(Chat.class);
-                    if(chat.getReceiver().equals(myid)&& chat.getSender().equals(userid){
+                    if(chat.getReceiver().equals(myid)&& chat.getSender().equals(userid)){
+                        chats.add(chat);
 
                     }
+
+                    messageAdapter=new MessageAdapter(MessageActivity.this,chats,imageurl);
+                    recyclerView.setAdapter(messageAdapter);
                 }
             }
 
@@ -151,6 +156,6 @@ public class MessageActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        })
+        });
     }
 }
