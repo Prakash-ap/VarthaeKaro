@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,6 +29,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
@@ -108,17 +110,53 @@ public class ProfileFragment extends Fragment {
         return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
     }
 
-    private void uploadImage(){
+    private void  uploadImage(){
         final ProgressDialog pd=new ProgressDialog(getContext());
         pd.setMessage("uploading..");
-        pd.dismiss();
+        pd.show();
 
         if(imageUri!=null){
             final StorageReference fileRefence=storageReference.child(System.currentTimeMillis()
             +"."+getFileExtension(imageUri));
 
             uploadTask=fileRefence.putFile(imageUri);
-            uploadTask.continueWith(new Continuation<UploadTask.TaskSnapshot,Task<Uri>>() {
+
+            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Uri downloadUri;
+                    downloadUri = imageUri;
+                    String mUri = downloadUri.toString();
+
+                    reference=FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+                    HashMap<String,Object> map=new HashMap<>();
+                    map.put("imageUrl",mUri);
+                    reference.updateChildren(map);
+
+                    pd.dismiss();
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    pd.dismiss();
+
+                }
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+
+                    double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                    pd.setMessage("Uploaded " + ((int) progress) + "%...");
+
+
+                }
+            });
+
+
+            /*uploadTask.continueWith(new Continuation<UploadTask.TaskSnapshot,Task<Uri>>() {
                 @Override
                 public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                     if(!task.isSuccessful()){
@@ -130,8 +168,9 @@ public class ProfileFragment extends Fragment {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
                     if(task.isSuccessful()){
-                        Uri downloadUri=task.getResult();
-                        String mUri=downloadUri.toString();
+                        Uri downloadUri;
+                        downloadUri = task.getResult();
+                        String mUri = downloadUri.toString();
 
                         reference=FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
                         HashMap<String,Object> map=new HashMap<>();
@@ -150,7 +189,7 @@ public class ProfileFragment extends Fragment {
                     Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     pd.dismiss();
                 }
-            });
+            });*/
         }else {
             Toast.makeText(getContext(), "No Image Selected", Toast.LENGTH_SHORT).show();
         }
@@ -163,6 +202,8 @@ public class ProfileFragment extends Fragment {
         if(requestCode == IMAGE_REQUEST && resultCode == RESULT_OK
         && data!= null && data.getData() !=null){
             imageUri=data.getData();
+
+
 
             if(uploadTask != null && uploadTask.isInProgress()){
                 Toast.makeText(getContext(), "upload is in progress", Toast.LENGTH_SHORT).show();
