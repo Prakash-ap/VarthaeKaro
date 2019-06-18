@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -53,6 +54,7 @@ public class ProfileFragment extends Fragment {
     private static final int IMAGE_REQUEST=1;
     private Uri imageUri;
     private StorageTask uploadTask;
+    public static final int KITKAT_VALUE = 1002;
 
 
     @Override
@@ -98,10 +100,26 @@ public class ProfileFragment extends Fragment {
 
     private void openImage() {
 
-        Intent intent=new Intent();
+        Intent intent;
+
+        if (Build.VERSION.SDK_INT < 19) {
+            intent = new Intent();
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            startActivityForResult(intent, KITKAT_VALUE);
+        } else {
+            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+            startActivityForResult(intent, KITKAT_VALUE);
+        }
+
+
+
+       /* Intent intent=new Intent();
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent,IMAGE_REQUEST);
+        intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+        startActivityForResult(intent,IMAGE_REQUEST);*/
     }
 
     private String getFileExtension(Uri uri){
@@ -120,7 +138,6 @@ public class ProfileFragment extends Fragment {
             +"."+getFileExtension(imageUri));
 
             uploadTask=fileRefence.putFile(imageUri);
-
             uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -154,6 +171,41 @@ public class ProfileFragment extends Fragment {
 
                 }
             });
+
+
+           /* uploadTask.continueWith(new Continuation<UploadTask.TaskSnapshot,Task<Uri>>(){
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if(!task.isSuccessful()){
+                        throw task.getException();
+                    }
+                    return fileRefence.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if(task.isSuccessful()){
+                        Uri downloadUri=task.getResult();
+                        String mUri=downloadUri.toString();
+
+                        reference=FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+                        HashMap<String,Object> map=new HashMap<>();
+                        map.put("imageUrl",mUri);
+                        reference.updateChildren(map);
+
+                        pd.dismiss();
+                    }else {
+                        Toast.makeText(getContext(), "Failed!", Toast.LENGTH_SHORT).show();
+                        pd.dismiss();
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    pd.dismiss();
+                }
+            });*/
 
 
             /*uploadTask.continueWith(new Continuation<UploadTask.TaskSnapshot,Task<Uri>>() {
@@ -198,17 +250,18 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == KITKAT_VALUE) {
 
-        if(requestCode == IMAGE_REQUEST && resultCode == RESULT_OK
-        && data!= null && data.getData() !=null){
-            imageUri=data.getData();
+            if (resultCode == RESULT_OK
+                    && data != null && data.getData() != null) {
+                imageUri = data.getData();
 
 
-
-            if(uploadTask != null && uploadTask.isInProgress()){
-                Toast.makeText(getContext(), "upload is in progress", Toast.LENGTH_SHORT).show();
-            }else {
-                uploadImage();
+                if (uploadTask != null && uploadTask.isInProgress()) {
+                    Toast.makeText(getContext(), "upload is in progress", Toast.LENGTH_SHORT).show();
+                } else {
+                    uploadImage();
+                }
             }
         }
     }

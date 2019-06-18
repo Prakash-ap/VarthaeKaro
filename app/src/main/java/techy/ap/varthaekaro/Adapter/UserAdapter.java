@@ -21,10 +21,12 @@ import techy.ap.varthaekaro.R;
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>{
     private Context context;
     private List<User>users;
+    private boolean isChat;
 
-    public UserAdapter(Context context, List<User> users) {
+    public UserAdapter(Context context, List<User> users,boolean isChat) {
         this.context = context;
         this.users = users;
+        this.isChat = isChat;
     }
 
     @NonNull
@@ -44,6 +46,24 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>{
         }else{
             Glide.with(context).load(user.getImageUrl()).into(viewHolder.imageView);
         }
+
+        if(isChat) {
+            if (user.getStatus().equals("online")) {
+                viewHolder.img_on.setVisibility(View.VISIBLE);
+                viewHolder.img_off.setVisibility(View.GONE);
+            } else {
+
+                viewHolder.img_on.setVisibility(View.GONE);
+                viewHolder.img_off.setVisibility(View.VISIBLE);
+
+            }
+        }else{
+            viewHolder.img_on.setVisibility(View.GONE);
+            viewHolder.img_off.setVisibility(View.GONE);
+
+        }
+
+
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,11 +85,15 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>{
 
         public TextView username;
         public ImageView imageView;
+        private ImageView img_on;
+        private ImageView img_off;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             username=itemView.findViewById(R.id.user_username);
             imageView=itemView.findViewById(R.id.user_profile_image);
+            img_on=itemView.findViewById(R.id.img_on);
+            img_off=itemView.findViewById(R.id.img_off);
         }
     }
 }
